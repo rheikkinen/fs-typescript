@@ -8,6 +8,23 @@ interface ResultObject {
   average: number
 }
 
+const parseArguments = (
+  args: string[]
+): { exerciseHours: number[]; targetAverage: number } => {
+  if (args.length < 4) throw new Error("Not enough arguments")
+
+  const targetAverage = Number(args[2])
+
+  if (isNaN(targetAverage)) throw new Error("Arguments must be numbers!")
+
+  const exerciseHours = args.slice(3).map((arg) => {
+    if (isNaN(Number(arg))) throw new Error("Arguments must be numbers!")
+    return Number(arg)
+  })
+
+  return { exerciseHours, targetAverage }
+}
+
 /**
  * Calculates the average time of daily exercise hours and
  * compares it to the target amount of daily hours.
@@ -56,4 +73,11 @@ const calculateExercises = (
   }
 }
 
-console.log(calculateExercises([3, 0, 2, 4.5, 0, 3, 1], 2))
+try {
+  const { exerciseHours, targetAverage } = parseArguments(process.argv)
+  console.log(calculateExercises(exerciseHours, targetAverage))
+} catch (error: unknown) {
+  if (error instanceof Error) console.error(error.message)
+}
+
+export {}
