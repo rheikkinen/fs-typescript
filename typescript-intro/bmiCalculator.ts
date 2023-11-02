@@ -16,7 +16,7 @@ const parseArguments = (args: string[]): BmiParameters => {
   return { height, weight }
 }
 
-const calculateBmi = (height: number, weight: number): string => {
+export const calculateBmi = (height: number, weight: number): string => {
   if (height <= 0 || weight <= 0)
     throw new Error("Arguments can't be negative or zero!")
   const bmi = (weight / height ** 2) * 10_000
@@ -33,5 +33,3 @@ try {
 } catch (error: unknown) {
   if (error instanceof Error) console.error(error.message)
 }
-
-export {}
