@@ -39,7 +39,7 @@ const parseArguments = (
  * - a rating between 1-3 that tells how well the hours are met
  * - a text feedback explaining the rating
  */
-const calculateExercises = (
+export const calculateExercises = (
   exerciseHours: number[],
   targetAverage: number
 ): ResultObject => {
@@ -79,5 +79,3 @@ try {
 } catch (error: unknown) {
   if (error instanceof Error) console.error(error.message);
 }
-
-export {};
