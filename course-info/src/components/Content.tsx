@@ -1,13 +1,15 @@
-interface Part {
-  name: string;
-  exerciseCount: number;
-}
+import { CoursePart } from '../types';
+import Part from './Part';
 
-const Content = ({ coursePart }: { coursePart: Part }) => {
+const Content = ({ courseParts }: { courseParts: CoursePart[] }) => {
   return (
-    <p>
-      {coursePart.name} {coursePart.exerciseCount}
-    </p>
+    <>
+      {courseParts
+        .sort((a, b) => (a.kind > b.kind ? 1 : -1))
+        .map((part) => (
+          <Part key={part.name} part={part} />
+        ))}
+    </>
   );
 };
 
