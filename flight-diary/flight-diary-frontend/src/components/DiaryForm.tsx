@@ -1,7 +1,7 @@
 import { UnsavedDiaryEntry } from '../types';
 
 interface DiaryFormProps {
-  createDiaryEntry: (data: UnsavedDiaryEntry) => void;
+  createDiaryEntry: (data: UnsavedDiaryEntry, form: HTMLFormElement) => void;
 }
 
 const DiaryForm = ({ createDiaryEntry }: DiaryFormProps) => {
@@ -9,17 +9,15 @@ const DiaryForm = ({ createDiaryEntry }: DiaryFormProps) => {
     event.preventDefault();
     const form = event.target as HTMLFormElement;
 
-    createDiaryEntry({
-      date: form.date.value,
-      weather: form.weather.value,
-      visibility: form.visibility.value,
-      comment: form.comment.value,
-    });
-
-    form.date.value = '';
-    form.weather.value = '';
-    form.visibility.value = '';
-    form.comment.value = '';
+    createDiaryEntry(
+      {
+        date: form.date.value,
+        weather: form.weather.value,
+        visibility: form.visibility.value,
+        comment: form.comment.value,
+      },
+      form
+    );
   };
 
   return (
