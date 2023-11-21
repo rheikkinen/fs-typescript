@@ -26,7 +26,6 @@ const DiaryForm = ({ createDiaryEntry }: DiaryFormProps) => {
         style={{
           marginBottom: 25,
           width: '50%',
-          padding: 10,
         }}
         onSubmit={handleSubmit}
       >

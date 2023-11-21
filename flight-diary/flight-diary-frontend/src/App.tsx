@@ -48,6 +48,7 @@ const App = () => {
       <Notification message={notification} />
       <h4>Add a new diary entry</h4>
       <DiaryForm createDiaryEntry={createDiaryEntry} />
+      <h4>Diary entries</h4>
       {diaries.map((diary) => (
         <DiaryItem key={diary.id} diaryEntry={diary} />
       ))}

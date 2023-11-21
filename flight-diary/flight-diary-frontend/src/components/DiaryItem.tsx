@@ -6,25 +6,29 @@ const DiaryItem = ({ diaryEntry }: { diaryEntry: DiaryEntry }) => {
       <table width={'40%'}>
         <thead>
           <tr>
-            <th colSpan={2}>
+            <th>
               <b>{diaryEntry.date}</b>
             </th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td>Weather:</td>
-            <td>{diaryEntry.weather}</td>
-          </tr>
-          <tr>
-            <td>Visibility:</td>
-            <td>{diaryEntry.visibility}</td>
-          </tr>
-          <tr>
-            <td colSpan={2}>
-              <em>{diaryEntry.comment}</em>
+            <td>
+              <b>Weather:</b> {diaryEntry.weather}
             </td>
           </tr>
+          <tr>
+            <td>
+              <b>Visibility:</b> {diaryEntry.visibility}
+            </td>
+          </tr>
+          {diaryEntry.comment && (
+            <tr>
+              <td>
+                <em>{diaryEntry.comment}</em>
+              </td>
+            </tr>
+          )}
         </tbody>
       </table>
     </div>
