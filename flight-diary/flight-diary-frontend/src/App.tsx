@@ -29,10 +29,7 @@ const App = () => {
       .create(newDiary)
       .then((data) => {
         setDiaries(diaries.concat(data));
-        form.date.value = '';
-        form.weather.value = '';
-        form.visibility.value = '';
-        form.comment.value = '';
+        form.reset();
       })
       .catch((error: unknown) => {
         let errorMessage;
