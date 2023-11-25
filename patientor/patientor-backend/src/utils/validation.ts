@@ -1,4 +1,4 @@
-import { Gender, UnsavedPatient } from '../types';
+import { Entry, EntryType, Gender, UnsavedPatient } from '../types';
 
 const isString = (param: unknown): param is string => {
   return typeof param === 'string' || param instanceof String;
@@ -10,6 +10,12 @@ const isDate = (param: string): boolean => {
 
 const isGender = (param: string): param is Gender => {
   return Object.values(Gender)
+    .map((v) => v.toString())
+    .includes(param);
+};
+
+const isEntryType = (param: string): param is EntryType => {
+  return Object.values(EntryType)
     .map((v) => v.toString())
     .includes(param);
 };
@@ -49,6 +55,30 @@ const parseOccupation = (occupation: unknown): string => {
   return occupation;
 };
 
+const parseEntries = (entries: unknown): Entry[] => {
+  if (!Array.isArray(entries)) {
+    throw new Error('The key "entries" must be an array.');
+  }
+
+  if (
+    entries.some(
+      (entry) => !entry || typeof entry !== 'object' || !('type' in entry)
+    )
+  ) {
+    throw new Error('Some entries are invalid.');
+  }
+  // Every entry is an object and has a field "type".
+  // Ensure that the "type" field has a valid type:
+  entries.forEach((entry) => {
+    const entryType: unknown = entry.type;
+    if (!isString(entryType) || !isEntryType(entryType)) {
+      throw new Error(`Invalid entry type: ${entryType}`);
+    }
+  });
+
+  return entries as Entry[];
+};
+
 export const toNewPatient = (object: unknown): UnsavedPatient => {
   if (!object || typeof object !== 'object') {
     throw new Error('Invalid or missing data');
@@ -64,7 +94,9 @@ export const toNewPatient = (object: unknown): UnsavedPatient => {
     !('gender' in object) ||
     !object.gender ||
     !('occupation' in object) ||
-    !object.occupation
+    !object.occupation ||
+    !('entries' in object) ||
+    !object.entries
   ) {
     throw new Error('Some keys are missing or invalid');
   }
@@ -74,6 +106,6 @@ export const toNewPatient = (object: unknown): UnsavedPatient => {
     ssn: parseSSN(object.ssn),
     gender: parseGender(object.gender),
     occupation: parseOccupation(object.occupation),
-    entries: [],
+    entries: parseEntries(object.entries),
   };
 };
