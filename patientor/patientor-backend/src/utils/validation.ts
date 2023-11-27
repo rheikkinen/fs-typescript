@@ -1,4 +1,13 @@
-import { Entry, EntryType, Gender, UnsavedPatient } from '../types';
+import {
+  BaseEntry,
+  Diagnosis,
+  Entry,
+  EntryType,
+  Gender,
+  HealthCheckRating,
+  UnsavedEntry,
+  UnsavedPatient,
+} from '../types';
 
 const isString = (param: unknown): param is string => {
   return typeof param === 'string' || param instanceof String;
@@ -18,6 +27,10 @@ const isEntryType = (param: string): param is EntryType => {
   return Object.values(EntryType)
     .map((v) => v.toString())
     .includes(param);
+};
+
+const isHealthCheckRating = (param: number): param is HealthCheckRating => {
+  return Object.values(HealthCheckRating).includes(param);
 };
 
 const parseName = (name: unknown): string => {
@@ -79,6 +92,25 @@ const parseEntries = (entries: unknown): Entry[] => {
   return entries as Entry[];
 };
 
+const parseTextField = (text: unknown): string => {
+  if (!isString(text)) {
+    throw new Error(`Invalid text input: ${text}`);
+  }
+  return text;
+};
+
+const parseHealthCheckRating = (rating: unknown): HealthCheckRating => {
+  if (
+    !isString(rating) ||
+    isNaN(Number(rating)) ||
+    !isHealthCheckRating(Number(rating))
+  ) {
+    throw new Error(`Invalid health check rating: ${rating}`);
+  }
+
+  return Number(rating);
+};
+
 export const toNewPatient = (object: unknown): UnsavedPatient => {
   if (!object || typeof object !== 'object') {
     throw new Error('Invalid or missing data');
@@ -108,4 +140,96 @@ export const toNewPatient = (object: unknown): UnsavedPatient => {
     occupation: parseOccupation(object.occupation),
     entries: parseEntries(object.entries),
   };
+};
+
+export const toNewEntry = (object: unknown): UnsavedEntry => {
+  if (!object || typeof object !== 'object') {
+    throw new Error('Invalid or missing data');
+  }
+  if (
+    !('type' in object) ||
+    !object.type ||
+    !('description' in object) ||
+    !object.description ||
+    !('date' in object) ||
+    !object.date ||
+    !('specialist' in object) ||
+    !object.specialist
+  ) {
+    throw new Error('Some keys are missing or invalid');
+  }
+
+  const baseEntry: Omit<BaseEntry, 'id'> = {
+    description: parseTextField(object.description),
+    date: parseDate(object.date),
+    specialist: parseTextField(object.specialist),
+    diagnosisCodes:
+      'diagnosisCodes' in object
+        ? // assume that the diagnostic codes are sent in a correct form
+          (object.diagnosisCodes as Array<Diagnosis['code']>)
+        : [],
+  };
+
+  switch (object.type) {
+    case EntryType.HealthCheck:
+      if (!('healthCheckRating' in object) || !object.healthCheckRating) {
+        throw new Error('Health check rating is missing');
+      }
+      return {
+        ...baseEntry,
+        type: EntryType.HealthCheck,
+        healthCheckRating: parseHealthCheckRating(object.healthCheckRating),
+      };
+    case EntryType.OccupationalHealthcare:
+      if (!('employerName' in object) || !object.employerName) {
+        throw new Error('Employer name is missing');
+      }
+      if (!('sickLeave' in object) || !object.sickLeave) {
+        return {
+          ...baseEntry,
+          type: EntryType.OccupationalHealthcare,
+          employerName: parseTextField(object.employerName),
+        };
+      }
+      if (
+        typeof object.sickLeave !== 'object' ||
+        !('startDate' in object.sickLeave) ||
+        !('endDate' in object.sickLeave)
+      ) {
+        throw new Error(
+          `Sick leave dates are invalid: ${JSON.stringify(object.sickLeave)}`
+        );
+      }
+      return {
+        ...baseEntry,
+        type: EntryType.OccupationalHealthcare,
+        employerName: parseTextField(object.employerName),
+        sickLeave: {
+          startDate: parseDate(object.sickLeave.startDate),
+          endDate: parseDate(object.sickLeave.endDate),
+        },
+      };
+
+    case EntryType.Hospital:
+      if (
+        !('discharge' in object) ||
+        !object.discharge ||
+        typeof object.discharge !== 'object' ||
+        !('date' in object.discharge) ||
+        !('criteria' in object.discharge)
+      ) {
+        throw new Error('Discharge details missing or invalid');
+      }
+      return {
+        ...baseEntry,
+        type: EntryType.Hospital,
+        discharge: {
+          date: parseDate(object.discharge.date),
+          criteria: parseTextField(object.discharge.criteria),
+        },
+      };
+
+    default:
+      throw new Error(`Invalid entry type: ${JSON.stringify(object.type)}`);
+  }
 };
