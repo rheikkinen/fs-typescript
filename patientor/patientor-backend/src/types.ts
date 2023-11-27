@@ -10,7 +10,7 @@ export interface Diagnosis {
   latin?: string;
 }
 
-interface BaseEntry {
+export interface BaseEntry {
   id: string;
   description: string;
   date: string;
@@ -67,6 +67,13 @@ export interface Patient {
   occupation: string;
   entries: Entry[];
 }
+
+// Define special omit for unions
+type UnionOmit<T, K extends string | number | symbol> = T extends unknown
+  ? Omit<T, K>
+  : never;
+
+export type UnsavedEntry = UnionOmit<Entry, 'id'>;
 
 export type UnsavedPatient = Omit<Patient, 'id'>;
 
