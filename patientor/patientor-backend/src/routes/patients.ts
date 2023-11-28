@@ -17,7 +17,7 @@ router.post('/', (req, res) => {
   } catch (error: unknown) {
     let errorMessage = 'Error, something went wrong. ';
     if (error instanceof Error) {
-      errorMessage += error.message;
+      errorMessage = error.message;
     }
     res.status(400).json({ error: errorMessage });
   }
@@ -43,9 +43,9 @@ router.post('/:id/entries', (req, res) => {
     const addedEntry: Entry = patientService.addEntry(newEntry, patient);
     return res.status(200).json(addedEntry);
   } catch (error: unknown) {
-    let errorMessage = 'Error, something went wrong. ';
+    let errorMessage = 'Error, something went wrong.';
     if (error instanceof Error) {
-      errorMessage += error.message;
+      errorMessage = `Error: ${error.message}`;
     }
     return res.status(400).json({ error: errorMessage });
   }
