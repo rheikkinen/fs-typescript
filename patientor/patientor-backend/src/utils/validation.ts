@@ -100,11 +100,7 @@ const parseTextField = (text: unknown): string => {
 };
 
 const parseHealthCheckRating = (rating: unknown): HealthCheckRating => {
-  if (
-    !isString(rating) ||
-    isNaN(Number(rating)) ||
-    !isHealthCheckRating(Number(rating))
-  ) {
+  if (isNaN(Number(rating)) || !isHealthCheckRating(Number(rating))) {
     throw new Error(`Invalid health check rating: ${rating}`);
   }
 
@@ -173,7 +169,7 @@ export const toNewEntry = (object: unknown): UnsavedEntry => {
   switch (object.type) {
     case EntryType.HealthCheck:
       if (!('healthCheckRating' in object) || !object.healthCheckRating) {
-        throw new Error('Health check rating is missing');
+        throw new Error('Health check rating is missing or invalid');
       }
       return {
         ...baseEntry,
